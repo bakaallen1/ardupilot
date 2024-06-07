@@ -175,7 +175,7 @@ bool AP_MotorsHeli_Single::init_outputs()
 
         // initialize main rotor servo
         _main_rotor.init_servo();
-
+        //尾部代码
         if (_tail_type == AP_MOTORS_HELI_SINGLE_TAILTYPE_DIRECTDRIVE_VARPITCH || _tail_type == AP_MOTORS_HELI_SINGLE_TAILTYPE_DIRECTDRIVE_VARPIT_EXT_GOV) {
             _tail_rotor.init_servo();
         } else if (_tail_type == AP_MOTORS_HELI_SINGLE_TAILTYPE_SERVO_EXTGYRO) {
@@ -406,6 +406,7 @@ void AP_MotorsHeli_Single::update_motor_control(RotorControlState state)
 //                       collective: 0 ~ 1
 //                       yaw:   -1 ~ +1
 //
+
 void AP_MotorsHeli_Single::move_actuators(float roll_out, float pitch_out, float coll_in, float yaw_out)
 {
     float yaw_offset = 0.0f;
@@ -526,6 +527,7 @@ void AP_MotorsHeli_Single::output_to_motors()
     if (_swashplate.get_swash_type() == SWASHPLATE_TYPE_H4_90 || _swashplate.get_swash_type() == SWASHPLATE_TYPE_H4_45) {
         rc_write_swash(AP_MOTORS_MOT_5, _servo5_out);
     }
+    //控制尾舵
     if (_tail_type != AP_MOTORS_HELI_SINGLE_TAILTYPE_DIRECTDRIVE_FIXEDPITCH_CW && _tail_type != AP_MOTORS_HELI_SINGLE_TAILTYPE_DIRECTDRIVE_FIXEDPITCH_CCW){
         rc_write_angle(AP_MOTORS_MOT_4, _servo4_out * YAW_SERVO_MAX_ANGLE);
     }

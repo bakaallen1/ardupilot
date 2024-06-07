@@ -70,6 +70,11 @@
 #include <AP_ADSB/AP_ADSB.h>                // ADS-B RF based collision avoidance module library
 #include <AP_Proximity/AP_Proximity.h>      // ArduPilot proximity sensor library
 
+
+
+
+
+
 // Configuration
 #include "defines.h"
 #include "config.h"
@@ -217,11 +222,13 @@ public:
     friend class ModeZigZag;
     friend class ModeAutorotate;
     friend class ModeTurtle;
-
+    friend class ModeDrawStar;
+    friend class ModeDrawSqure;
     Copter(void);
 
-private:
 
+private:
+    bool flag = false;
     // key aircraft parameters passed to multiple libraries
     AP_Vehicle::MultiCopter aparm;
 
@@ -988,7 +995,8 @@ private:
 #if MODE_TURTLE_ENABLED == ENABLED
     ModeTurtle mode_turtle;
 #endif
-
+    ModeDrawStar mode_drawstar;
+    ModeDrawSqure mode_drawsqure;
     // mode.cpp
     Mode *mode_from_mode_num(const Mode::Number mode);
     void exit_mode(Mode *&old_flightmode, Mode *&new_flightmode);

@@ -1099,6 +1099,14 @@ const AP_Param::GroupInfo ParametersG2::var_info[] = {
     // @User: Advanced
     AP_GROUPINFO("SURFTRAK_MODE", 51, ParametersG2, surftrak_mode, (uint8_t)Copter::SurfaceTracking::Surface::GROUND),
 
+    // @Param: STAR_R_CM
+    // @DisplayName: Drawstar mode star radius
+    // @Description: Radius of star waypoints in drawstar mode
+    // @Units: cm
+    // @Range: 1.0 2000.0
+    // @User: Advanced
+    AP_GROUPINFO("STAR_R_CM", 52, ParametersG2, star_radius_cm, 1000),
+
     AP_GROUPEND
 };
 

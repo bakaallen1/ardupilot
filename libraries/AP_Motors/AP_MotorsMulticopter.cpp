@@ -207,6 +207,12 @@ const AP_Param::GroupInfo AP_MotorsMulticopter::var_info[] = {
     // @User: Advanced
     AP_GROUPINFO("SAFE_TIME", 42, AP_MotorsMulticopter, _safe_time, AP_MOTORS_SAFE_TIME_DEFAULT),
 
+    AP_GROUPINFO("COL_MIN", 50, AP_MotorsMulticopter, _collective_min, AP_MOTORS_HELI_COLLECTIVE_MIN),
+
+    AP_GROUPINFO("COL_MAX", 51, AP_MotorsMulticopter, _collective_max, AP_MOTORS_HELI_COLLECTIVE_MAX),
+
+    AP_GROUPINFO("COL_MID", 52, AP_MotorsMulticopter, _collective_mid, AP_MOTORS_HELI_COLLECTIVE_MID),
+
     AP_GROUPEND
 };
 
@@ -797,4 +803,13 @@ void AP_MotorsMulticopter::convert_pwm_min_max_param(int16_t radio_min, int16_t 
     }
     _pwm_min.set_and_save(radio_min);
     _pwm_max.set_and_save(radio_max);
+}
+
+void AP_MotorsMulticopter::update_takeoff_collective_flag(float coll_out)
+{
+    if (coll_out > _collective_zero_thrust_pct + 0.5f * (_collective_hover - _collective_zero_thrust_pct)) {
+        _heliflags.takeoff_collective = true;
+    } else {
+        _heliflags.takeoff_collective = false;
+    }
 }

@@ -264,6 +264,18 @@
 #endif
 
 //////////////////////////////////////////////////////////////////////////////
+// DrawStar mode - control vehicle's wp based on current position
+#ifndef MODE_DRAWSTAR_ENABLED
+# define MODE_DRAWSTAR_ENABLED ENABLED
+#endif
+
+
+#ifndef MODE_DRAWSQURE_ENABLED
+# define MODE_DRAWSQURE_ENABLED ENABLED
+#endif
+
+
+//////////////////////////////////////////////////////////////////////////////
 // GuidedNoGPS mode - control vehicle's angles from GCS
 #ifndef MODE_GUIDED_NOGPS_ENABLED
 # define MODE_GUIDED_NOGPS_ENABLED !HAL_MINIMIZE_FEATURES

@@ -25,6 +25,20 @@
 #define AP_MOTORS_SLEW_TIME_DEFAULT     0.0f    // slew rate limit for thrust output
 #define AP_MOTORS_SAFE_TIME_DEFAULT     1.0f    // Time for the esc when transitioning between zero pwm to minimum
 
+
+// 定义直升机总距参数
+#define AP_MOTORS_HELI_COLLECTIVE_MIN           1389
+#define AP_MOTORS_HELI_COLLECTIVE_MAX           1619
+#define AP_MOTORS_HELI_COLLECTIVE_MID           1504
+#define AP_MOTORS_HELI_COLLECTIVE_HOVER_DEFAULT 0.5f
+#define AP_MOTORS_HELI_COLLECTIVE_HOVER_TC      10.0f
+#define AP_MOTORS_HELI_COLLECTIVE_HOVER_MIN     0.3f
+#define AP_MOTORS_HELI_COLLECTIVE_HOVER_MAX     0.8f
+#define AP_MOTORS_HELI_COLLECTIVE_MIN_DEG      -90.0f
+#define AP_MOTORS_HELI_COLLECTIVE_MAX_DEG       90.0f
+#define AP_MOTORS_HELI_COLLECTIVE_LAND_MIN      -2.0f
+
+
 // spool definition
 #define AP_MOTORS_SPOOL_UP_TIME_DEFAULT 0.5f    // time (in seconds) for throttle to increase from zero to min throttle, and min throttle to full throttle.
 
@@ -104,7 +118,13 @@ public:
 
     // var_info for holding Parameter information
     static const struct AP_Param::GroupInfo        var_info[];
+    // 新增的总距相关变量
 
+
+
+    void calculate_scalars();
+    void move_actuators(float roll_out, float pitch_out, float collective_in, float yaw_out);
+    float get_collective() const;
 protected:
 
     // run spool logic
@@ -177,7 +197,20 @@ protected:
     AP_Float            _throttle_hover;        // estimated throttle required to hover throttle in the range 0 ~ 1
     AP_Int8             _throttle_hover_learn;  // enable/disabled hover thrust learning
     AP_Int8             _disarm_disable_pwm;    // disable PWM output while disarmed
-
+    AP_Int16        _cyclic_max;                // Maximum cyclic angle of the swash plate in centi-degrees
+    AP_Int16        _collective_min;            // Lowest possible servo position for the swashplate
+    AP_Int16        _collective_max;            // Highest possible servo position for the swashplate
+    AP_Int16        _collective_mid;            // Midpoint of the servo range for the swashplate
+    AP_Int8         _servo_mode;                // Pass radio inputs directly to servos during set-up through mission planner
+    AP_Int8         _servo_test;                // sets number of cycles to test servo movement on bootup
+    AP_Float        _collective_hover;          // estimated collective required to hover throttle in the range 0 ~ 1
+    AP_Int8         _collective_hover_learn;    // enable/disabled hover collective learning
+    AP_Int8         _heli_options;              // bitmask for optional features
+    AP_Float        _collective_zero_thrust_deg;// Zero thrust blade collective pitch in degrees
+    AP_Float        _collective_land_min_deg;   // Minimum Landed collective blade pitch in degrees for non-manual collective modes (i.e. modes that use altitude hold)
+    AP_Float        _collective_max_deg;        // Maximum collective blade pitch angle in deg that corresponds to the PWM set for maximum collective pitch (H_COL_MAX)
+    AP_Float        _collective_min_deg;        // Minimum collective blade pitch angle in deg that corresponds to the PWM set for minimum collective pitch (H_COL_MIN)
+    
     // Maximum lean angle of yaw servo in degrees. This is specific to tricopter
     AP_Float            _yaw_servo_angle_max_deg;
 
@@ -205,4 +238,34 @@ protected:
 
     // array of motor output values
     float _actuator[AP_MOTORS_MAX_NUM_MOTORS];
+
+
+    void update_takeoff_collective_flag(float coll_out);
+
+        // flags bitmask
+
+    struct heliflags_type {
+        uint8_t landing_collective      : 1;    // true if collective is setup for landing which has much higher minimum
+        uint8_t rotor_runup_complete    : 1;    // true if the rotors have had enough time to wind up
+        uint8_t inverted_flight         : 1;    // true for inverted flight
+        uint8_t init_targets_on_arming  : 1;    // 0 if targets were initialized, 1 if targets were not initialized after arming
+        uint8_t save_rsc_mode           : 1;    // used to determine the rsc mode needs to be saved while disarmed
+        uint8_t in_autorotation         : 1;    // true if aircraft is in autorotation
+        uint8_t enable_bailout          : 1;    // true if allowing RSC to quickly ramp up engine
+        uint8_t servo_test_running      : 1;    // true if servo_test is running
+        uint8_t land_complete           : 1;    // true if aircraft is landed
+        uint8_t takeoff_collective      : 1;    // true if collective is above 30% between H_COL_MID and H_COL_MAX
+        uint8_t below_land_min_coll     : 1;    // true if collective is below H_COL_LAND_MIN
+        uint8_t rotor_spooldown_complete : 1;    // true if the rotors have spooled down completely
+        uint8_t start_engine            : 1;    // true if turbine start RC option is initiated
+    } _heliflags;
+
+    float           _collective_zero_thrust_pct;      // collective zero thrutst parameter value converted to 0 ~ 1 range
+    float           _collective_land_min_pct;      // collective land min parameter value converted to 0 ~ 1 range
+    uint8_t         _servo_test_cycle_counter = 0;   // number of test cycles left to run after bootup
+
+    private:
+    
+
 };
+

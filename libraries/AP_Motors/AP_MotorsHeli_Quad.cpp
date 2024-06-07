@@ -126,7 +126,7 @@ void AP_MotorsHeli_Quad::calculate_armed_scalars()
         _main_rotor.set_autorotation_flag(_heliflags.in_autorotation);
     }
 }
-
+ 
 // calculate_scalars
 void AP_MotorsHeli_Quad::calculate_scalars()
 {

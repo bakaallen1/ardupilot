@@ -158,7 +158,7 @@ const AP_Scheduler::Task Copter::scheduler_tasks[] = {
     SCHED_TASK(fourhundred_hz_logging,400,    50,  75),
 #endif
     SCHED_TASK_CLASS(AP_Notify,            &copter.notify,              update,          50,  90,  78),
-    SCHED_TASK(one_hz_loop,            1,    100,  81),
+    SCHED_TASK(one_hz_loop,           1,    100,  81),
     SCHED_TASK(ekf_check,             10,     75,  84),
     SCHED_TASK(check_vibration,       10,     50,  87),
     SCHED_TASK(gpsglitch_check,       10,     50,  90),
@@ -466,6 +466,7 @@ void Copter::rc_loop()
     // Read radio and 3-position switch on radio
     // -----------------------------------------
     read_radio();
+    //遥控器输入
     rc().read_mode_switch();
 }
 
@@ -607,6 +608,7 @@ void Copter::three_hz_loop()
 }
 
 // one_hz_loop - runs at 1Hz
+
 void Copter::one_hz_loop()
 {
     if (should_log(MASK_LOG_ANY)) {
@@ -641,6 +643,24 @@ void Copter::one_hz_loop()
 #endif
 
     AP_Notify::flags.flying = !ap.land_complete;
+
+/*     float roll_input = 0.0f;         // 模拟roll输入
+    float pitch_input = 0.0f;        // 模拟pitch输入
+    float yaw_input = 0.0f;          // 模拟yaw输入
+    float collective_input = 0.5f;   // 模拟总距输入 (范围为 0.0 到 1.0)
+
+    // 设置输入到电机控制类
+    motors->set_roll(roll_input);
+    motors->set_pitch(pitch_input);
+    motors->set_yaw(yaw_input);
+    motors->set_collective_input(collective_input);
+
+    // 输出到电机
+    motors->output_to_motors();
+
+    // 打印输出到控制台以供调试
+    gcs().send_text(MAV_SEVERITY_INFO, "Roll: %.2f Pitch: %.2f Yaw: %.2f Collective: %.2f",
+                    roll_input, pitch_input, yaw_input, collective_input); */
 }
 
 void Copter::init_simple_bearing()

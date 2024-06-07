@@ -29,13 +29,14 @@ SRV_Channel::servo_mask_t SRV_Channel::have_pwm_mask;
 const AP_Param::GroupInfo SRV_Channel::var_info[] = {
     // @Param: MIN
     // @DisplayName: Minimum PWM
+    //输入PWM波的高脉冲宽度的最小值，单位为微秒。通常1000是下限，1500是中性，2000是上限。
     // @Description: minimum PWM pulse width in microseconds. Typically 1000 is lower limit, 1500 is neutral and 2000 is upper limit.
     // @Units: PWM
     // @Range: 500 2200
     // @Increment: 1
     // @User: Standard
     AP_GROUPINFO("MIN",  1, SRV_Channel, servo_min, 1100),
-
+    //输入PWM波的高脉冲宽度的最大值，单位为微秒。通常1000是下限，1500是中性，2000是上限。
     // @Param: MAX
     // @DisplayName: Maximum PWM
     // @Description: maximum PWM pulse width in microseconds. Typically 1000 is lower limit, 1500 is neutral and 2000 is upper limit.
@@ -52,6 +53,7 @@ const AP_Param::GroupInfo SRV_Channel::var_info[] = {
     // @Range: 800 2200
     // @Increment: 1
     // @User: Standard
+    //输入PWM波的高脉冲宽度的中性值，单位为微秒。通常1000是下限，1500是中性，2000是上限。
     AP_GROUPINFO("TRIM",  3, SRV_Channel, servo_trim, 1500),
 
     // @Param: REVERSED
@@ -59,6 +61,7 @@ const AP_Param::GroupInfo SRV_Channel::var_info[] = {
     // @Description: Reverse servo operation. Set to 0 for normal operation. Set to 1 to reverse this output channel.
     // @Values: 0:Normal,1:Reversed
     // @User: Standard
+    //输入PWM波的高脉冲宽度是否反向。设置为0表示正常操作。设置为1以反转此输出通道。
     AP_GROUPINFO("REVERSED",  4, SRV_Channel, reversed, 0),
 
     // @Param: FUNCTION
@@ -69,6 +72,7 @@ const AP_Param::GroupInfo SRV_Channel::var_info[] = {
     // @Values{Copter}: -1:GPIO,0:Disabled,1:RCPassThru,6:MountPan,7:MountTilt,8:MountRoll,9:MountOpen,10:CameraTrigger,12:Mount2Pan,13:Mount2Tilt,14:Mount2Roll,15:Mount2Open,22:SprayerPump,23:SprayerSpinner,27:Parachute,28:Gripper,29:LandingGear,30:EngineRunEnable,31:HeliRSC,32:HeliTailRSC,33:Motor1,34:Motor2,35:Motor3,36:Motor4,37:Motor5,38:Motor6,39:Motor7,40:Motor8,51:RCIN1,52:RCIN2,53:RCIN3,54:RCIN4,55:RCIN5,56:RCIN6,57:RCIN7,58:RCIN8,59:RCIN9,60:RCIN10,61:RCIN11,62:RCIN12,63:RCIN13,64:RCIN14,65:RCIN15,66:RCIN16,73:ThrottleLeft,74:ThrottleRight,75:TiltMotorFrontLeft,76:TiltMotorFrontRight,81:BoostThrottle,82:Motor9,83:Motor10,84:Motor11,85:Motor12,88:Winch,90:CameraISO,91:CameraAperture,92:CameraFocus,93:CameraShutterSpeed,94:Script1,95:Script2,96:Script3,97:Script4,98:Script5,99:Script6,100:Script7,101:Script8,102:Script9,103:Script10,104:Script11,105:Script12,106:Script13,107:Script14,108:Script15,109:Script16,120:NeoPixel1,121:NeoPixel2,122:NeoPixel3,123:NeoPixel4,124:RateRoll,125:RatePitch,126:RateThrust,127:RateYaw,129:ProfiLED1,130:ProfiLED2,131:ProfiLED3,132:ProfiLEDClock,133:Winch Clutch,134:SERVOn_MIN,135:SERVOn_TRIM,136:SERVOn_MAX,138:Alarm,139:Alarm Inverted
     // @Values{Rover}: -1:GPIO,0:Disabled,1:RCPassThru,6:MountPan,7:MountTilt,8:MountRoll,9:MountOpen,10:CameraTrigger,12:Mount2Pan,13:Mount2Tilt,14:Mount2Roll,15:Mount2Open,22:SprayerPump,23:SprayerSpinner,26:GroundSteering,28:Gripper,33:Motor1,34:Motor2,35:Motor3,36:Motor4,51:RCIN1,52:RCIN2,53:RCIN3,54:RCIN4,55:RCIN5,56:RCIN6,57:RCIN7,58:RCIN8,59:RCIN9,60:RCIN10,61:RCIN11,62:RCIN12,63:RCIN13,64:RCIN14,65:RCIN15,66:RCIN16,70:Throttle,73:ThrottleLeft,74:ThrottleRight,88:Winch,89:Main Sail,90:CameraISO,91:CameraAperture,92:CameraFocus,93:CameraShutterSpeed,94:Script1,95:Script2,96:Script3,97:Script4,98:Script5,99:Script6,100:Script7,101:Script8,102:Script9,103:Script10,104:Script11,105:Script12,106:Script13,107:Script14,108:Script15,109:Script16,120:NeoPixel1,121:NeoPixel2,122:NeoPixel3,123:NeoPixel4,128:WingSailElevator,129:ProfiLED1,130:ProfiLED2,131:ProfiLED3,132:ProfiLEDClock,133:Winch Clutch,134:SERVOn_MIN,135:SERVOn_TRIM,136:SERVOn_MAX,137:SailMastRotation,138:Alarm,139:Alarm Inverted
     // @User: Standard
+    //通道“x”输出的PWM波是用来控制什么的
     AP_GROUPINFO("FUNCTION",  5, SRV_Channel, function, 0),
 
     AP_GROUPEND

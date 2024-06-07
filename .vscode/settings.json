@@ -1,4 +1,3 @@
 {
-    "cSpell.language": "en-GB",
-    "astyle.astylerc": "${workspaceFolder}/Tools/CodeStyle/astylerc"
+    "cmake.sourceDirectory": "D:/flycontrol1/ardupilot/libraries/AP_HAL_ESP32/targets/esp-idf"
 }

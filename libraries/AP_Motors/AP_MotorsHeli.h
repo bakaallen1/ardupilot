@@ -16,8 +16,8 @@
 
 // default swash min and max angles and positions
 #define AP_MOTORS_HELI_SWASH_CYCLIC_MAX         2500
-#define AP_MOTORS_HELI_COLLECTIVE_MIN           1250
-#define AP_MOTORS_HELI_COLLECTIVE_MAX           1750
+#define AP_MOTORS_HELI_COLLECTIVE_MIN           1389
+#define AP_MOTORS_HELI_COLLECTIVE_MAX           1619
 #define AP_MOTORS_HELI_COLLECTIVE_HOVER_DEFAULT 0.5f  // the estimated hover throttle, 0 ~ 1
 #define AP_MOTORS_HELI_COLLECTIVE_HOVER_TC      10.0f // time constant used to update estimated hover throttle, 0 ~ 1
 #define AP_MOTORS_HELI_COLLECTIVE_HOVER_MIN     0.3f  // minimum possible hover throttle

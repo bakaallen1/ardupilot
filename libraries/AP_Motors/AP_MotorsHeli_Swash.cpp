@@ -188,7 +188,30 @@ void AP_MotorsHeli_Swash::calculate_roll_pitch_collective_factors()
         _pitchFactor[CH_3] = 0;
     }
 }
+/* void AP_MotorsHeli_Swash::calculate_roll_pitch_collective_factors()
+{
+    // 确保总距因子正确设置
+    for (int i = 0; i < 4; i++) {  // 假设最多4个舵机通道
+        _collectiveFactor[i] = 1.0f;  // 所有通道的总距因子都设置为1
+    }
 
+    // 设置滚转和俯仰因子为零，因为我们只关心总距
+    for (int i = 0; i < 4; i++) {
+        _rollFactor[i] = 0.0f;
+        _pitchFactor[i] = 0.0f;
+    }
+
+    // 如果只需要一个叶片的总距测试，可以根据需要进一步调整
+    if (_swash_type == SWASHPLATE_TYPE_H3) {
+        _rollFactor[CH_1] = 0;
+        _rollFactor[CH_2] = 0;
+        _rollFactor[CH_3] = 0;
+        _pitchFactor[CH_1] = 0;
+        _pitchFactor[CH_2] = 0;
+        _pitchFactor[CH_3] = 0;
+    }
+    // 可以根据需求调整其他情况的配置
+} */
 // get_servo_out - calculates servo output
 float AP_MotorsHeli_Swash::get_servo_out(int8_t ch_num, float pitch, float roll, float collective) const
 {
