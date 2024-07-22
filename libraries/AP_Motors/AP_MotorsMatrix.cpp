@@ -43,14 +43,14 @@ void AP_MotorsMatrix::init(motor_frame_class frame_class, motor_frame_type frame
     set_update_rate(_speed_hz);
 
         // initialize outputs 初始化舵机
-    init_outputs();
+    //init_outputs();
 /*     if (!init_outputs()) {
         // don't set initialised_ok if init_outputs fails
         return;
     } */
 
     // calculate all scalars
-    calculate_scalars();
+    //calculate_scalars();
     
 }
 
@@ -58,37 +58,11 @@ void AP_MotorsMatrix::init(motor_frame_class frame_class, motor_frame_type frame
 /* bool AP_MotorsMatrix::init_outputs()
 {
     if (initialised_ok()) {
-        return true;
-    }
-
-    // 初始化所有电机通道
-    for (uint8_t i = 0; i < AP_MOTORS_MAX_NUM_MOTORS; i++) {
-        if (motor_enabled[i]) {
-            add_motor_num(i);
-            // 设置电机的最大角度，这里假设 QUAD_SERVO_MAX_ANGLE 已定义
-            SRV_Channels::set_angle(SRV_Channels::get_motor_function(i), QUAD_SERVO_MAX_ANGLE);
-        }
-    }
-
-
-  // 这里是直升机的初始化 6/4/2024
-    for (uint8_t i = 0; i < AP_MOTORS_MAX_NUM_SERVOS; i++) {
-        uint8_t servo_channel = CH_5 + i;
-        SRV_Channel::Aux_servo_function_t servo_function = SRV_Channels::get_motor_function(servo_channel);
-        SRV_Channels::set_output_min_max(servo_function, AP_MOTORS_HELI_COLLECTIVE_MIN, AP_MOTORS_HELI_COLLECTIVE_MAX);
-    }
-
-    set_initialised_ok(true);
-    return true;
-} */
-bool AP_MotorsMatrix::init_outputs()
-{
-    if (initialised_ok()) {
         gcs().send_text(MAV_SEVERITY_INFO, "Initialization skipped: already initialized");
         return true;
     }
 
-/*     // 初始化所有电机通道
+    // 初始化所有电机通道
     gcs().send_text(MAV_SEVERITY_INFO, "Initializing motor channels...");
     for (uint8_t i = 0; i < AP_MOTORS_MAX_NUM_SERVOS; i++) {
         if (motor_enabled[i]) {
@@ -97,17 +71,17 @@ bool AP_MotorsMatrix::init_outputs()
             SRV_Channels::set_angle(SRV_Channels::get_motor_function(i), QUAD_SERVO_MAX_ANGLE);
             gcs().send_text(MAV_SEVERITY_INFO, "Motor channel initialized: channel %d", i);
         }
-    } */
+    }
 
     // 初始化主转子的舵机输出
     gcs().send_text(MAV_SEVERITY_INFO, "Initializing servo outputs...");
-/*     for (uint8_t i = 0; i < AP_MOTORS_MAX_NUM_SERVOS; i++) {
+    for (uint8_t i = 0; i < AP_MOTORS_MAX_NUM_SERVOS; i++) {
         uint8_t servo_channel = CH_5 + i;
         SRV_Channel::Aux_servo_function_t servo_function = SRV_Channels::get_motor_function(servo_channel);
         SRV_Channels::set_output_min_max(servo_function, AP_MOTORS_HELI_COLLECTIVE_MIN, AP_MOTORS_HELI_COLLECTIVE_MAX);
         gcs().send_text(MAV_SEVERITY_INFO, "Servo channel initialized: channel %d", servo_channel);
     }
- */
+
     for (uint8_t i=0; i<AP_MOTORS_MAX_NUM_SERVOS; i++) {
         add_motor_num(CH_5+i);
         SRV_Channels::set_angle(SRV_Channels::get_motor_function(i), QUAD_SERVO_MAX_ANGLE);
@@ -116,7 +90,7 @@ bool AP_MotorsMatrix::init_outputs()
     set_initialised_ok(true);
     gcs().send_text(MAV_SEVERITY_INFO, "Initialization complete");
     return true;
-}
+} */
 
 
 void AP_MotorsMatrix::calculate_scalars()
@@ -273,10 +247,10 @@ void AP_MotorsMatrix::set_frame_class_and_type(motor_frame_class frame_class, mo
 
     init(frame_class, frame_type);
 
-    calculate_scalars();
+    //calculate_scalars();
 }
 
-/* void AP_MotorsMatrix::output_to_motors()
+void AP_MotorsMatrix::output_to_motors()
 {
     int8_t i;
 
@@ -310,7 +284,7 @@ void AP_MotorsMatrix::set_frame_class_and_type(motor_frame_class frame_class, mo
             break;
     }
 
-    calculate_scalars();
+    //calculate_scalars();
     //heli_motors_swash.calculate_roll_pitch_collective_factors(); 
     // convert output to PWM and send to each motor
     for (i = 0; i < AP_MOTORS_MAX_NUM_MOTORS; i++) {
@@ -319,12 +293,9 @@ void AP_MotorsMatrix::set_frame_class_and_type(motor_frame_class frame_class, mo
         }
     }
 
-    } */ 
+    } 
 
-void AP_MotorsMatrix::output_to_motors() {
-    if (!initialised_ok()) {
-        return;
-    }
+/* void AP_MotorsMatrix::output_to_motors() {
 
     // 计算控制因子
     calculate_scalars();
@@ -358,8 +329,8 @@ void AP_MotorsMatrix::output_to_motors() {
                 }
             }
             break;
-    }
-
+    } 
+    
     // 控制舵机输出
     for (uint8_t i = 0; i < AP_MOTORS_MAX_NUM_SERVOS; i++) {
         float servo_output = 
@@ -369,27 +340,8 @@ void AP_MotorsMatrix::output_to_motors() {
         rc_write_angle(CH_5 + i, servo_output * QUAD_SERVO_MAX_ANGLE);
     }
 
-/*     // 更新舵机控制状态
-    switch (_spool_state) {
-        case SpoolState::SHUT_DOWN:
-            // sends minimum values out to the motors
-            update_servo_control(ROTOR_CONTROL_STOP);
-            break;
-        case SpoolState::GROUND_IDLE:
-            // sends idle output to motors when armed. rotor could be static or turning (autorotation)
-            update_servo_control(ROTOR_CONTROL_IDLE);
-            break;
-        case SpoolState::SPOOLING_UP:
-        case SpoolState::THROTTLE_UNLIMITED:
-            // set motor output based on thrust requests
-            update_servo_control(ROTOR_CONTROL_ACTIVE);
-            break;
-        case SpoolState::SPOOLING_DOWN:
-            // sends idle output to motors and wait for rotor to stop
-            update_servo_control(ROTOR_CONTROL_IDLE);
-            break;
-    } */
-}
+
+}*/
 
 void AP_MotorsMatrix::update_servo_control(RotorControlState state) {
     // Send state update to servos
@@ -733,7 +685,7 @@ void AP_MotorsMatrix::output_armed_stabilizing()
     check_for_failed_motor(throttle_thrust_best_plus_adj);
 
     // 调用 move_actuator 来控制执行器
-    move_actuators(roll_thrust, pitch_thrust, throttle_thrust, yaw_thrust);    
+    //move_actuators(roll_thrust, pitch_thrust, throttle_thrust, yaw_thrust);    
 }
 
 // check for failed motor
@@ -905,6 +857,7 @@ void AP_MotorsMatrix::add_motors_raw(const struct MotorDefRaw *motors, uint8_t n
 
 void AP_MotorsMatrix::setup_motors(motor_frame_class frame_class, motor_frame_type frame_type)
 {
+    hal.console->printf("Initializing motors\n");
     // remove existing motors
     for (int8_t i = 0; i < AP_MOTORS_MAX_NUM_MOTORS; i++) {
         remove_motor(i);
@@ -938,6 +891,12 @@ void AP_MotorsMatrix::setup_motors(motor_frame_class frame_class, motor_frame_ty
                         {  135, AP_MOTORS_MATRIX_YAW_FACTOR_CW,   2 },
                     };
                     add_motors(motors, ARRAY_SIZE(motors));
+/*                     gcs().send_text(MAV_SEVERITY_INFO, "Initializing servo outputs...");
+                    for (uint8_t i=0; i<AP_MOTORS_MAX_NUM_SERVOS; i++) {
+                    add_motor_num(CH_5+i);
+                    SRV_Channels::set_angle(SRV_Channels::get_motor_function(i), QUAD_SERVO_MAX_ANGLE);
+                    }
+                    gcs().send_text(MAV_SEVERITY_INFO, "Initialization complete"); */
                     break;
                 }
 #if APM_BUILD_TYPE(APM_BUILD_ArduPlane)

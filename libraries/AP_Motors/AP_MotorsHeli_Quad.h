@@ -21,7 +21,10 @@ public:
     // constructor
     AP_MotorsHeli_Quad(uint16_t loop_rate,
                        uint16_t speed_hz = AP_MOTORS_HELI_SPEED_DEFAULT) :
-        AP_MotorsHeli(loop_rate, speed_hz)
+        AP_MotorsHeli(loop_rate, speed_hz),
+        _motor_1(SRV_Channel::k_motor5, 4), // 为每个电机指定不同的输出通道
+        _motor_2(SRV_Channel::k_motor6, 5),
+        _motor_3(SRV_Channel::k_motor7, 6)
     {
         AP_Param::setup_object_defaults(this, var_info);
     };
@@ -71,6 +74,9 @@ public:
     // var_info for holding Parameter information
     static const struct AP_Param::GroupInfo var_info[];
 
+    void test_motor(uint8_t motor_seq, int16_t pwm) {
+        _output_test_seq(motor_seq, pwm);
+    }   
 protected:
 
     // init_outputs
@@ -96,6 +102,10 @@ protected:
     float _collectiveFactor[AP_MOTORS_HELI_QUAD_NUM_MOTORS];
     float _yawFactor[AP_MOTORS_HELI_QUAD_NUM_MOTORS];
     float _out[AP_MOTORS_HELI_QUAD_NUM_MOTORS];
+private:
+    AP_MotorsHeli_RSC _motor_1;
+    AP_MotorsHeli_RSC _motor_2;
+    AP_MotorsHeli_RSC _motor_3;
 };
 
 

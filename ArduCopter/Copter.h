@@ -91,6 +91,12 @@
  #define MOTOR_CLASS AP_MotorsMulticopter
 #endif
 
+/* #ifdef HELI_FRAME
+#pragma message "HELI_FRAME is defined"
+#else
+#pragma message "HELI_FRAME is not defined"
+#endif */
+
 #if MODE_AUTOROTATE_ENABLED == ENABLED
  #include <AC_Autorotation/AC_Autorotation.h> // Autorotation controllers
 #endif

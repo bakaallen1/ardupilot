@@ -59,7 +59,7 @@ void ModeDrawStar::generate_path()
     //float radius_cm = g2.star_radius_cm;
     // set path[0] at origin
     //float side_length_cm = 1000.0; 
-    float side_length_cm = 500.0; //修改路线长度
+    float side_length_cm = 5000.0; //修改路线长度
     wp_nav->get_wp_stopping_point(path[0]);
     path[1] = path[0] + Vector3f(side_length_cm, 0, 0);                 // 向东移动
     path[2] = path[1] + Vector3f(0, side_length_cm, 0);                 // 从东向南移动

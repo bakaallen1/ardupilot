@@ -608,7 +608,7 @@ void AC_PosControl::update_xy_controller()
     AP::ahrs().getControlLimits(ahrsGndSpdLimit, ahrsControlScaleXY);
 
     // Position Controller
-
+    //从惯性导航系统获取当前位置，并通过PID控制器计算出达到期望位置所需的目标速度
     const Vector3f &curr_pos = _inav.get_position_neu_cm();
     Vector2f vel_target = _p_pos_xy.update_all(_pos_target.x, _pos_target.y, curr_pos);
 
@@ -618,7 +618,7 @@ void AC_PosControl::update_xy_controller()
     _vel_target.xy() += _vel_desired.xy();
 
     // Velocity Controller
-
+   // 计算达到期望速度所需的目标加速度
     const Vector2f &curr_vel = _inav.get_velocity_xy_cms();
     Vector2f accel_target = _pid_vel_xy.update_all(_vel_target.xy(), curr_vel, _limit_vector.xy());
     
@@ -645,7 +645,8 @@ void AC_PosControl::update_xy_controller()
 
     // update angle targets that will be passed to stabilize controller
     accel_to_lean_angles(_accel_target.x, _accel_target.y, _roll_target, _pitch_target);
-    calculate_yaw_and_rate_yaw();
+    //这个函数将目标加速度（_accel_target.x 和 _accel_target.y）转换为相应的倾斜角度倾斜角（滚转和俯仰目标（_roll_target 和 _pitch_target），这些角度将被传递给姿态控制器
+    calculate_yaw_and_rate_yaw();//计算偏航
 }
 
 

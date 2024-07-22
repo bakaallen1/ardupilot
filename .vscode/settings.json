@@ -1,3 +1,14 @@
 {
-    "cmake.sourceDirectory": "D:/flycontrol1/ardupilot/libraries/AP_HAL_ESP32/targets/esp-idf"
+    "cmake.sourceDirectory": "D:/flycontrol1/ardupilot/libraries/AP_HAL_ESP32/targets/esp-idf",
+    "files.associations": {
+        "*.cpp": "cpp",
+        "*.tcc": "cpp",
+        "algorithm": "cpp",
+        "memory": "cpp",
+        "random": "cpp",
+        "iosfwd": "cpp",
+        "numeric": "cpp",
+        "ostream": "cpp",
+        "streambuf": "cpp"
+    }
 }

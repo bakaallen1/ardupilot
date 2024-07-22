@@ -59,6 +59,9 @@ bool AP_MotorsHeli_Quad::init_outputs()
 
     // set rotor servo range
     _main_rotor.init_servo();
+    _motor_1.init_servo();
+    _motor_2.init_servo();
+    _motor_3.init_servo();    
 
     // set signal value for main rotor external governor to know when to use autorotation bailout ramp up
     if (_main_rotor._rsc_mode.get() == ROTOR_CONTROL_MODE_SETPOINT  ||  _main_rotor._rsc_mode.get() == ROTOR_CONTROL_MODE_PASSTHROUGH) {
@@ -196,8 +199,23 @@ uint16_t AP_MotorsHeli_Quad::get_motor_mask()
 // update_motor_controls - sends commands to motor controllers
 void AP_MotorsHeli_Quad::update_motor_control(RotorControlState state)
 {
+    static int count = 0; // 静态计数器
+    int output_interval = 10000; // 每10次调用输出一次
     // Send state update to motors
     _main_rotor.output(state);
+    //float pwm_output = _main_rotor.get_last_servo_out();
+    float pwm_output = 1000 + (_main_rotor.get_last_servo_out() * 1000);
+                    if (++count % output_interval == 0) {
+            gcs().send_text(MAV_SEVERITY_INFO, "pwm_output for three motor: %f",pwm_output);
+            count = 0; // 重置计数器
+        }
+    //!SRV_Channels::set_output_scaled(SRV_Channel::k_motor5, pwm_output * 1000);
+    //!SRV_Channels::set_output_scaled(SRV_Channel::k_motor6, pwm_output * 1000);
+    //!SRV_Channels::set_output_scaled(SRV_Channel::k_motor7, pwm_output * 1000);
+    SRV_Channels::set_output_pwm(SRV_Channel::k_motor5, pwm_output);
+    SRV_Channels::set_output_pwm(SRV_Channel::k_motor6, pwm_output);
+    SRV_Channels::set_output_pwm(SRV_Channel::k_motor7, pwm_output);
+
 
     if (state == ROTOR_CONTROL_STOP) {
         // set engine run enable aux output to not run position to kill engine when disarmed

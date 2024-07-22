@@ -265,14 +265,17 @@ void AC_AttitudeControl::input_quaternion(Quaternion& attitude_desired_quat, Vec
 void AC_AttitudeControl::input_euler_angle_roll_pitch_euler_rate_yaw(float euler_roll_angle_cd, float euler_pitch_angle_cd, float euler_yaw_rate_cds)
 {
     // Convert from centidegrees on public interface to radians
+    //! 将mode stabilize等等的获得滚转角度，俯仰角度，和偏航角度（以百分之一度为单位）被转换为弧度单位
     float euler_roll_angle = radians(euler_roll_angle_cd * 0.01f);
     float euler_pitch_angle = radians(euler_pitch_angle_cd * 0.01f);
     float euler_yaw_rate = radians(euler_yaw_rate_cds * 0.01f);
-
     // calculate the attitude target euler angles
+    //!获取当前目标姿态的的欧拉角（通过调用to_euler来将四元数转换为欧拉角的函数）
+    //todo当前目标姿态四元数 _attitude_target 转换为欧拉角，并存储在 _euler_angle_target 中：
     _attitude_target.to_euler(_euler_angle_target.x, _euler_angle_target.y, _euler_angle_target.z);
 
     // Add roll trim to compensate tail rotor thrust in heli (will return zero on multirotors)
+    //!添加滚转修正(只对直升机有效)
     euler_roll_angle += get_roll_trim_rad();
 
     if (_rate_bf_ff_enabled) {
@@ -297,18 +300,20 @@ void AC_AttitudeControl::input_euler_angle_roll_pitch_euler_rate_yaw(float euler
         ang_vel_to_euler_rate(_euler_angle_target, _ang_vel_target, _euler_rate_target);
     } else {
         // When feedforward is not enabled, the target euler angle is input into the target and the feedforward rate is zeroed.
+        
         _euler_angle_target.x = euler_roll_angle;
         _euler_angle_target.y = euler_pitch_angle;
         _euler_angle_target.z += euler_yaw_rate * _dt;
         // Compute quaternion target attitude
+        //!将上面转换的欧拉角进行计算
         _attitude_target.from_euler(_euler_angle_target.x, _euler_angle_target.y, _euler_angle_target.z);
 
         // Set rate feedforward requests to zero
         _euler_rate_target.zero();
         _ang_vel_target.zero();
     }
-
     // Call quaternion attitude controller
+    //!四元数姿态控制器
     attitude_controller_run_quat();
 }
 
@@ -688,26 +693,33 @@ Quaternion AC_AttitudeControl::attitude_from_thrust_vector(Vector3f thrust_vecto
 void AC_AttitudeControl::attitude_controller_run_quat()
 {
     // This represents a quaternion rotation in NED frame to the body
+    //!通过 _ahrs.get_quat_body_to_ned(attitude_body) 获取当前飞行器的姿态四元数。
     Quaternion attitude_body;
     _ahrs.get_quat_body_to_ned(attitude_body);
-
+    
     // This vector represents the angular error to rotate the thrust vector using x and y and heading using z
+    //!计算目标姿态和当前姿态之间的误差，并返回误差向量 attitude_error
     Vector3f attitude_error;
     thrust_heading_rotation_angles(_attitude_target, attitude_body, attitude_error, _thrust_angle, _thrust_error_angle);
 
     // Compute the angular velocity corrections in the body frame from the attitude error
+    //!根据姿态误差计算出需要施加的角速度
     _ang_vel_body = update_ang_vel_target_from_att_error(attitude_error);
 
     // ensure angular velocity does not go over configured limits
+    //!确保角速度不会超过设定的最大值
     ang_vel_limit(_ang_vel_body, radians(_ang_vel_roll_max), radians(_ang_vel_pitch_max), radians(_ang_vel_yaw_max));
 
     // rotation from the target frame to the body frame
+    //!计算从目标姿态到当前姿态的旋转四元数
     Quaternion rotation_target_to_body = attitude_body.inverse() * _attitude_target;
 
     // target angle velocity vector in the body frame
+    //!计算从目标姿态到当前姿态的旋转四元数
     Vector3f ang_vel_body_feedforward = rotation_target_to_body * _ang_vel_target;
 
     // Correct the thrust vector and smoothly add feedforward and yaw input
+    //!根据推力误差角度修正角速度，并添加前馈量和平滑处理
     _feedforward_scalar = 1.0f;
     if (_thrust_error_angle > AC_ATTITUDE_THRUST_ERROR_ANGLE * 2.0f) {
         _ang_vel_body.z = _ahrs.get_gyro().z;
@@ -722,6 +734,7 @@ void AC_AttitudeControl::attitude_controller_run_quat()
     }
 
     if (_rate_bf_ff_enabled) {
+        //!如果启用了角速度前馈，则更新目标姿态
         // rotate target and normalize
         Quaternion attitude_target_update;
         attitude_target_update.from_axis_angle(Vector3f{_ang_vel_target.x * _dt, _ang_vel_target.y * _dt, _ang_vel_target.z * _dt});
@@ -730,9 +743,11 @@ void AC_AttitudeControl::attitude_controller_run_quat()
     }
 
     // ensure Quaternion stay normalised
+    //!四元数归一化
     _attitude_target.normalize();
 
     // Record error to handle EKF resets
+    //!记录误差
     _attitude_ang_error = attitude_body.inverse() * _attitude_target;
 }
 

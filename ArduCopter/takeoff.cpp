@@ -103,6 +103,8 @@ void Mode::_TakeOff::do_pilot_takeoff(float& pilot_climb_rate_cm)
 void Mode::auto_takeoff_run()
 {
     // if not armed set throttle to zero and exit immediately
+    //首先，代码检查无人机是否已经解锁（armed）。如果没有解锁或者没有自动解锁，
+    //它会调用make_safe_ground_handling方法来处理安全地面操作
     if (!motors->armed() || !copter.ap.auto_armed) {
         // do not spool down tradheli when on the ground with motor interlock enabled
         make_safe_ground_handling(copter.is_tradheli() && motors->get_interlock());
@@ -159,7 +161,7 @@ void Mode::auto_takeoff_run()
     }
     pos_control->update_xy_controller();
 
-    // command the aircraft to the take off altitude
+    // command the aircraft to the take off altitude 此段代码计算起飞时无人机的目标位置（包括地形补偿），然后命令无人机升至该高度。
     float pos_z = auto_takeoff_complete_alt_cm + terr_offset;
     float vel_z = 0.0;
     copter.pos_control->input_pos_vel_accel_z(pos_z, vel_z, 0.0);

@@ -88,7 +88,10 @@ const AP_Param::GroupInfo AP_MotorsHeli::var_info[] = {
     // @Group: RSC_
     // @Path: AP_MotorsHeli_RSC.cpp
     AP_SUBGROUPINFO(_main_rotor, "RSC_", 25, AP_MotorsHeli, AP_MotorsHeli_RSC),
-
+/*     AP_SUBGROUPINFO(_motor_1,"MOTOR1", 33, AP_MotorsHeli, AP_MotorsHeli_RSC),
+    AP_SUBGROUPINFO(_motor_2,"MOTOR2", 34, AP_MotorsHeli, AP_MotorsHeli_RSC),
+    AP_SUBGROUPINFO(_motor_3,"MOTOR3" ,35, AP_MotorsHeli, AP_MotorsHeli_RSC),
+    AP_SUBGROUPINFO(_motor_4, "MOTOR4",36, AP_MotorsHeli, AP_MotorsHeli_RSC), */
     // @Param: COL_HOVER
     // @DisplayName: Collective Hover Value
     // @Description: Collective needed to hover expressed as a number from 0 to 1 where 0 is H_COL_MIN and 1 is H_COL_MAX
@@ -609,3 +612,21 @@ void AP_MotorsHeli::update_turbine_start()
     }
 }
 
+/* void AP_MotorsHeli::update_turbine_start()
+{
+    bool start = _heliflags.start_engine;  // 获取启动标志
+
+    // 设置每个电机的启动状态
+        if (_heliflags.start_engine) {
+            _motor_1.set_turbine_start(true);
+            _motor_2.set_turbine_start(true);
+            _motor_3.set_turbine_start(true);
+            _motor_4.set_turbine_start(true);
+    } else {
+            _motor_1.set_turbine_start(false);
+            _motor_2.set_turbine_start(false);
+            _motor_3.set_turbine_start(false);
+            _motor_4.set_turbine_start(false);
+    }
+
+} */

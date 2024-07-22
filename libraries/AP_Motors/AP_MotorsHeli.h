@@ -176,7 +176,7 @@ protected:
 
     // external objects we depend upon
     AP_MotorsHeli_RSC   _main_rotor;            // main rotor
-
+    
     // update_motor_controls - sends commands to motor controllers
     virtual void update_motor_control(RotorControlState state) = 0;
 

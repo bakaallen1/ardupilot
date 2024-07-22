@@ -208,6 +208,7 @@ const AP_Param::GroupInfo AP_MotorsHeli_RSC::var_info[] = {
 // init_servo - servo initialization on start-up
 void AP_MotorsHeli_RSC::init_servo()
 {
+    //hal.console->printf("Initializing servo on channel: %d\n", _default_channel);
     // setup RSC on specified channel by default
     SRV_Channels::set_aux_channel_default(_aux_fn, _default_channel);
 
@@ -229,11 +230,16 @@ void AP_MotorsHeli_RSC::set_throttle_curve()
     // Calculate the spline polynomials for the throttle curve
     splinterp5(thrcrv,_thrcrv_poly);
 }
-
+//!转速输出
 // output - update value to send to ESC/Servo
 void AP_MotorsHeli_RSC::output(RotorControlState state)
 {
     // _rotor_RPM available to the RSC output
+    static int counter = 0;
+    if (counter++ % 10000 == 0) {
+        gcs().send_text(MAV_SEVERITY_INFO, "RSC output called. State: %u", (unsigned)state);
+    }
+    
     const AP_RPM *rpm = AP_RPM::get_singleton();
     if (rpm != nullptr) {
         if (!rpm->get_rpm(0, _rotor_rpm)) {
@@ -325,7 +331,7 @@ void AP_MotorsHeli_RSC::output(RotorControlState state)
                 autothrottle_run();
             }
             break;
-    }
+    }  
 
     // update rotor speed run-up estimate
     update_rotor_runup(dt);
@@ -336,6 +342,7 @@ void AP_MotorsHeli_RSC::output(RotorControlState state)
         _control_output = constrain_float(_control_output, last_control_output-max_delta, last_control_output+max_delta);
     }
 
+    
     // output to rsc servo
     write_rsc(_control_output);
 }
@@ -430,12 +437,20 @@ float AP_MotorsHeli_RSC::get_rotor_speed() const
 // servo_out parameter is of the range 0 ~ 1
 void AP_MotorsHeli_RSC::write_rsc(float servo_out)
 {
+    static int count = 0; // 静态计数器
+    int output_interval = 10000; // 每10次调用输出一次
+    _last_servo_out = servo_out;
     if (_control_mode == ROTOR_CONTROL_MODE_DISABLED){
         // do not do servo output to avoid conflicting with other output on the channel
         // ToDo: We should probably use RC_Channel_Aux to avoid this problem
+        gcs().send_text(MAV_SEVERITY_INFO, "RSC output disabled.");
         return;
     } else {
         SRV_Channels::set_output_scaled(_aux_fn, servo_out * 1000);
+                if (++count % output_interval == 0) {
+            gcs().send_text(MAV_SEVERITY_INFO, "RSC PWM Output: %f", servo_out);
+            count = 0; // 重置计数器
+        }
     }
 }
 

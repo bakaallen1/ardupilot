@@ -123,6 +123,7 @@ public:
     // var_info for holding Parameter information
     static const struct AP_Param::GroupInfo var_info[];
 
+    float get_last_servo_out() const { return _last_servo_out; }
     // parameters
     AP_Int16        _rsc_setpoint;            // rotor speed when RSC mode is set to is enabled
     AP_Int8         _rsc_mode;                // Which main rotor ESC control mode is active
@@ -134,7 +135,7 @@ public:
 
 private:
     uint64_t        _last_update_us;
-
+    float _last_servo_out;
     // channel setup for aux function
     SRV_Channel::Aux_servo_function_t _aux_fn;
     uint8_t         _default_channel;
