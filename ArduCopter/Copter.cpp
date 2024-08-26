@@ -644,23 +644,6 @@ void Copter::one_hz_loop()
 
     AP_Notify::flags.flying = !ap.land_complete;
 
-/*     float roll_input = 0.0f;         // 模拟roll输入
-    float pitch_input = 0.0f;        // 模拟pitch输入
-    float yaw_input = 0.0f;          // 模拟yaw输入
-    float collective_input = 0.5f;   // 模拟总距输入 (范围为 0.0 到 1.0)
-
-    // 设置输入到电机控制类
-    motors->set_roll(roll_input);
-    motors->set_pitch(pitch_input);
-    motors->set_yaw(yaw_input);
-    motors->set_collective_input(collective_input);
-
-    // 输出到电机
-    motors->output_to_motors();
-
-    // 打印输出到控制台以供调试
-    gcs().send_text(MAV_SEVERITY_INFO, "Roll: %.2f Pitch: %.2f Yaw: %.2f Collective: %.2f",
-                    roll_input, pitch_input, yaw_input, collective_input); */
 }
 
 void Copter::init_simple_bearing()

@@ -229,7 +229,7 @@ public:
     friend class ModeAutorotate;
     friend class ModeTurtle;
     friend class ModeDrawStar;
-    friend class ModeDrawSqure;
+    // friend class ModeDrawSqure;
     Copter(void);
 
 
@@ -1002,7 +1002,7 @@ private:
     ModeTurtle mode_turtle;
 #endif
     ModeDrawStar mode_drawstar;
-    ModeDrawSqure mode_drawsqure;
+    // ModeDrawSqure mode_drawsqure;
     // mode.cpp
     Mode *mode_from_mode_num(const Mode::Number mode);
     void exit_mode(Mode *&old_flightmode, Mode *&new_flightmode);

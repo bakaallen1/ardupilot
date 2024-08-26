@@ -16,11 +16,6 @@
 #include <AP_HAL/AP_HAL.h>
 #include "AP_MotorsMatrix.h"
 #include <AP_Vehicle/AP_Vehicle.h>
-#include "AP_MotorsHeli_Single.h" // 引入直升机的头文件
-#include "AP_MotorsHeli_Swash.h" // 引入swash的头文件
-
-/* AP_MotorsHeli_Single heli_motors;
-AP_MotorsHeli_Swash heli_motors_swash; */
 
 extern const AP_HAL::HAL& hal;
 
@@ -41,110 +36,7 @@ void AP_MotorsMatrix::init(motor_frame_class frame_class, motor_frame_type frame
 
     // enable fast channels or instant pwm
     set_update_rate(_speed_hz);
-
-        // initialize outputs 初始化舵机
-    //init_outputs();
-/*     if (!init_outputs()) {
-        // don't set initialised_ok if init_outputs fails
-        return;
-    } */
-
-    // calculate all scalars
-    //calculate_scalars();
-    
 }
-
-// init_outputs
-/* bool AP_MotorsMatrix::init_outputs()
-{
-    if (initialised_ok()) {
-        gcs().send_text(MAV_SEVERITY_INFO, "Initialization skipped: already initialized");
-        return true;
-    }
-
-    // 初始化所有电机通道
-    gcs().send_text(MAV_SEVERITY_INFO, "Initializing motor channels...");
-    for (uint8_t i = 0; i < AP_MOTORS_MAX_NUM_SERVOS; i++) {
-        if (motor_enabled[i]) {
-            add_motor_num(i);
-            // 设置电机的最大角度，这里假设 QUAD_SERVO_MAX_ANGLE 已定义
-            SRV_Channels::set_angle(SRV_Channels::get_motor_function(i), QUAD_SERVO_MAX_ANGLE);
-            gcs().send_text(MAV_SEVERITY_INFO, "Motor channel initialized: channel %d", i);
-        }
-    }
-
-    // 初始化主转子的舵机输出
-    gcs().send_text(MAV_SEVERITY_INFO, "Initializing servo outputs...");
-    for (uint8_t i = 0; i < AP_MOTORS_MAX_NUM_SERVOS; i++) {
-        uint8_t servo_channel = CH_5 + i;
-        SRV_Channel::Aux_servo_function_t servo_function = SRV_Channels::get_motor_function(servo_channel);
-        SRV_Channels::set_output_min_max(servo_function, AP_MOTORS_HELI_COLLECTIVE_MIN, AP_MOTORS_HELI_COLLECTIVE_MAX);
-        gcs().send_text(MAV_SEVERITY_INFO, "Servo channel initialized: channel %d", servo_channel);
-    }
-
-    for (uint8_t i=0; i<AP_MOTORS_MAX_NUM_SERVOS; i++) {
-        add_motor_num(CH_5+i);
-        SRV_Channels::set_angle(SRV_Channels::get_motor_function(i), QUAD_SERVO_MAX_ANGLE);
-    }
-
-    set_initialised_ok(true);
-    gcs().send_text(MAV_SEVERITY_INFO, "Initialization complete");
-    return true;
-} */
-
-
-void AP_MotorsMatrix::calculate_scalars()
-{
-    // range check collective min, max and mid
-    if (_collective_min >= _collective_max) {
-        _collective_min = AP_MOTORS_HELI_COLLECTIVE_MIN;
-        _collective_max = AP_MOTORS_HELI_COLLECTIVE_MAX;
-    }
-
-    _collective_zero_thrust_deg = constrain_float(_collective_zero_thrust_deg, _collective_min_deg, _collective_max_deg);
-    _collective_land_min_deg = constrain_float(_collective_land_min_deg, _collective_min_deg, _collective_max_deg);
-
-    if (!is_equal((float)_collective_max_deg, (float)_collective_min_deg)) {
-        // calculate collective zero thrust point as a number from 0 to 1
-        _collective_zero_thrust_pct = (_collective_zero_thrust_deg - _collective_min_deg) / (_collective_max_deg - _collective_min_deg);
-        // calculate collective land min point as a number from 0 to 1
-        _collective_land_min_pct = (_collective_land_min_deg - _collective_min_deg) / (_collective_max_deg - _collective_min_deg);
-    } else {
-        _collective_zero_thrust_pct = 0.0f;
-        _collective_land_min_pct = 0.0f;
-    }
-
-    // calculate factors based on swash type and servo position
-    calculate_roll_pitch_collective_factors();
-}
-
-
-void AP_MotorsMatrix::calculate_roll_pitch_collective_factors()
-{
-    // assume X quad layout, with motors at 45, 135, 225, and 315 degrees
-    // order FrontRight, RearLeft, FrontLeft, RearRight
-/*     const float angles[AP_MOTORS_MAX_NUM_SERVOS] = { 45, 225, 315, 135 };
-    const bool x_clockwise[AP_MOTORS_MAX_NUM_SERVOS] = { false, false, true, true };
-    const float cos45 = cosf(radians(45)); */
-
-    for (uint8_t i = 0; i < AP_MOTORS_MAX_NUM_SERVOS; i++) {
-        if (motor_enabled[i]) {
-/*             bool clockwise = x_clockwise[i];
-            if (_frame_type == MOTOR_FRAME_TYPE_H) {
-                // reverse yaw for H frame
-                clockwise = !clockwise;
-            } */
-            _rollFactor[i] = 0.0f;
-            _pitchFactor[i] = 0.0f;
-            _yawFactor[i] = 0.0f;
-            //!_rollFactor[i] = -0.25f * sinf(radians(angles[i])) / cos45;
-            //!_pitchFactor[i] = 0.25f * cosf(radians(angles[i])) / cos45;
-            //!_yawFactor[i] = clockwise ? -0.25f : 0.25f;
-            _collectiveFactor[i] = 1.0f;
-        }
-    }
-}
-
 
 #if AP_SCRIPTING_ENABLED
 // dedicated init for lua scripting
@@ -219,7 +111,6 @@ bool AP_MotorsMatrix::set_throttle_factor(int8_t motor_num, float throttle_facto
 
 #endif // AP_SCRIPTING_ENABLED
 
-
 // set update rate to motors - a value in hertz
 void AP_MotorsMatrix::set_update_rate(uint16_t speed_hz)
 {
@@ -247,7 +138,6 @@ void AP_MotorsMatrix::set_frame_class_and_type(motor_frame_class frame_class, mo
 
     init(frame_class, frame_type);
 
-    //calculate_scalars();
 }
 
 void AP_MotorsMatrix::output_to_motors()
@@ -284,82 +174,14 @@ void AP_MotorsMatrix::output_to_motors()
             break;
     }
 
-    //calculate_scalars();
-    //heli_motors_swash.calculate_roll_pitch_collective_factors(); 
     // convert output to PWM and send to each motor
     for (i = 0; i < AP_MOTORS_MAX_NUM_MOTORS; i++) {
         if (motor_enabled[i]) {
             rc_write(i, output_to_pwm(_actuator[i]));
         }
     }
+}
 
-    } 
-
-/* void AP_MotorsMatrix::output_to_motors() {
-
-    // 计算控制因子
-    calculate_scalars();
-
-    // 控制电机输出
-    switch (_spool_state) {
-        case SpoolState::SHUT_DOWN: {
-            // no output
-            for (int8_t i = 0; i < AP_MOTORS_MAX_NUM_MOTORS; i++) {
-                if (motor_enabled[i]) {
-                    _actuator[i] = 0.0f;
-                }
-            }
-            break;
-        }
-        case SpoolState::GROUND_IDLE:
-            // sends output to motors when armed but not flying
-            for (int8_t i = 0; i < AP_MOTORS_MAX_NUM_MOTORS; i++) {
-                if (motor_enabled[i]) {
-                    set_actuator_with_slew(_actuator[i], actuator_spin_up_to_ground_idle());
-                }
-            }
-            break;
-        case SpoolState::SPOOLING_UP:
-        case SpoolState::THROTTLE_UNLIMITED:
-        case SpoolState::SPOOLING_DOWN:
-            // set motor output based on thrust requests
-            for (int8_t i = 0; i < AP_MOTORS_MAX_NUM_MOTORS; i++) {
-                if (motor_enabled[i]) {
-                    set_actuator_with_slew(_actuator[i], thrust_to_actuator(_thrust_rpyt_out[i]));
-                }
-            }
-            break;
-    } 
-    
-    // 控制舵机输出
-    for (uint8_t i = 0; i < AP_MOTORS_MAX_NUM_SERVOS; i++) {
-        float servo_output = 
-            _servo_roll_factor[i] * _roll_in +
-            _servo_pitch_factor[i] * _pitch_in +
-            _servo_collective_factor[i] * _collective_in;
-        rc_write_angle(CH_5 + i, servo_output * QUAD_SERVO_MAX_ANGLE);
-    }
-
-
-}*/
-
-void AP_MotorsMatrix::update_servo_control(RotorControlState state) {
-    // Send state update to servos
-    _main_rotor.output(state);
-
-    if (state == ROTOR_CONTROL_STOP) {
-        // set engine run enable aux output to not run position to kill engine when disarmed
-        SRV_Channels::set_output_limit(SRV_Channel::k_engine_run_enable, SRV_Channel::Limit::MIN);
-    } else {
-        // else if armed, set engine run enable output to run position
-        SRV_Channels::set_output_limit(SRV_Channel::k_engine_run_enable, SRV_Channel::Limit::MAX);
-    }
-
-    // Check if rotors are run-up
-    _heliflags.rotor_runup_complete = _main_rotor.is_runup_complete();
-    // Check if rotors are spooled down
-    _heliflags.rotor_spooldown_complete = _main_rotor.is_spooldown_complete();
-}    
 // get_motor_mask - returns a bitmask of which outputs are being used for motors (1 means being used)
 //  this can be used to ensure other pwm outputs (i.e. for servos) do not conflict
 uint16_t AP_MotorsMatrix::get_motor_mask()
@@ -377,110 +199,6 @@ uint16_t AP_MotorsMatrix::get_motor_mask()
 
     return mask;
 }
-
-void AP_MotorsMatrix::move_actuators(float roll_out, float pitch_out, float collective_in, float yaw_out)
-{
-    // initialize limits flag
-    limit.throttle_lower = false;
-    limit.throttle_upper = false;
-
-    // constrain collective input
-    float collective_out = collective_in;
-    if (collective_out <= 0.0f) {
-        collective_out = 0.0f;
-        limit.throttle_lower = true;
-    }
-    if (collective_out >= 1.0f) {
-        collective_out = 1.0f;
-        limit.throttle_upper = true;
-    }
-
-    // ensure not below landed/landing collective
-    if (_heliflags.landing_collective && collective_out < _collective_land_min_pct) {
-        collective_out = _collective_land_min_pct;
-        limit.throttle_lower = true;
-    }
-
-    // updates below land min collective flag
-    if (collective_out <= _collective_land_min_pct) {
-        _heliflags.below_land_min_coll = true;
-    } else {
-        _heliflags.below_land_min_coll = false;
-    }
-
-    // updates takeoff collective flag based on 50% hover collective
-    update_takeoff_collective_flag(collective_out);
-
-    float collective_range = (_collective_max - _collective_min) * 0.001f;
-
-    if (_heliflags.inverted_flight) {
-        collective_out = 1.0f - collective_out;
-    }
-
-    // feed power estimate into main rotor controller
-    _main_rotor.set_collective(fabsf(collective_out));
-
-
-    // rescale collective for overhead calc
-    collective_out -= _collective_zero_thrust_pct;
-
-    // reserve some collective for attitude control
-    collective_out *= collective_range;
-
-    for (uint8_t i = 0; i < AP_MOTORS_MAX_NUM_SERVOS; i++) {
-        if (motor_enabled[i]) {
-            _out[i] =
-                //!_rollFactor[i] * roll_out +
-                //!_pitchFactor[i] * pitch_out +
-                _collectiveFactor[i] * collective_out;
-        }
-    }
-
-    // see if we need to scale down yaw_out
-   /*  for (uint8_t i = 0; i < AP_MOTORS_MAX_NUM_SERVOS; i++) {
-        if (motor_enabled[i]) {
-            float y = _yawFactor[i] * yaw_out;
-            if (_out[i] < 0.0f) {
-                // the slope of the yaw effect changes at zero collective
-                y = -y;
-            }
-            if (_out[i] * (_out[i] + y) < 0.0f) {
-                // applying this yaw demand would change the sign of the
-                // collective, which means the yaw would not be applied
-                // evenly. We scale down the overall yaw demand to prevent
-                // it crossing over zero
-                float s = -(_out[i] / y);
-                yaw_out *= s;
-            }
-        }
-    } */
-
-    // now apply the yaw correction
-    for (uint8_t i = 0; i < AP_MOTORS_MAX_NUM_SERVOS; i++) {
-        if (motor_enabled[i]) {
-            float y = _yawFactor[i] * yaw_out;
-            if (_out[i] < 0.0f) {
-                // the slope of the yaw effect changes at zero collective
-                y = -y;
-            }
-            _out[i] += y;
-        }
-    }
-
-    for (uint8_t i = 0; i < AP_MOTORS_MAX_NUM_SERVOS; i++) {
-        if (motor_enabled[i]) {
-            // scale output to 0 to 1
-            _out[i] += _collective_zero_thrust_pct;
-            // scale output to -1 to 1 for servo output
-            _out[i] = _out[i] * 2.0f - 1.0f;
-        }
-    }
-}
-
-
-
-
-
 
 // output_armed - sends commands to the motors
 // includes new scaling stability patch
@@ -683,9 +401,6 @@ void AP_MotorsMatrix::output_armed_stabilizing()
 
     // check for failed motor
     check_for_failed_motor(throttle_thrust_best_plus_adj);
-
-    // 调用 move_actuator 来控制执行器
-    //move_actuators(roll_thrust, pitch_thrust, throttle_thrust, yaw_thrust);    
 }
 
 // check for failed motor
@@ -857,7 +572,6 @@ void AP_MotorsMatrix::add_motors_raw(const struct MotorDefRaw *motors, uint8_t n
 
 void AP_MotorsMatrix::setup_motors(motor_frame_class frame_class, motor_frame_type frame_type)
 {
-    hal.console->printf("Initializing motors\n");
     // remove existing motors
     for (int8_t i = 0; i < AP_MOTORS_MAX_NUM_MOTORS; i++) {
         remove_motor(i);
@@ -891,12 +605,6 @@ void AP_MotorsMatrix::setup_motors(motor_frame_class frame_class, motor_frame_ty
                         {  135, AP_MOTORS_MATRIX_YAW_FACTOR_CW,   2 },
                     };
                     add_motors(motors, ARRAY_SIZE(motors));
-/*                     gcs().send_text(MAV_SEVERITY_INFO, "Initializing servo outputs...");
-                    for (uint8_t i=0; i<AP_MOTORS_MAX_NUM_SERVOS; i++) {
-                    add_motor_num(CH_5+i);
-                    SRV_Channels::set_angle(SRV_Channels::get_motor_function(i), QUAD_SERVO_MAX_ANGLE);
-                    }
-                    gcs().send_text(MAV_SEVERITY_INFO, "Initialization complete"); */
                     break;
                 }
 #if APM_BUILD_TYPE(APM_BUILD_ArduPlane)

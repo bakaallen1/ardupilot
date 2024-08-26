@@ -181,11 +181,11 @@ Mode *Copter::mode_from_mode_num(const Mode::Number mode)
             break;
 #endif
 
-#if MODE_DRAWSQURE_ENABLED == ENABLED
-        case Mode::Number::DRAWSQURE:
-            ret = &mode_drawsqure;
-            break;
-#endif
+// #if MODE_DRAWSQURE_ENABLED == ENABLED
+//         case Mode::Number::DRAWSQURE:
+//             ret = &mode_drawsqure;
+//             break;
+// #endif
         default:
             break;
     }

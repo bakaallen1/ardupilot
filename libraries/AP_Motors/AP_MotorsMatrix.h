@@ -6,59 +6,28 @@
 #include <AP_Math/AP_Math.h>        // ArduPilot Mega Vector/Matrix math Library
 #include <RC_Channel/RC_Channel.h>     // RC Channel Library
 #include "AP_MotorsMulticopter.h"
-#include "AP_MotorsHeli_Swash.h"
-#include "AP_MotorsHeli_RSC.h"
 
 #define AP_MOTORS_MATRIX_YAW_FACTOR_CW   -1
 #define AP_MOTORS_MATRIX_YAW_FACTOR_CCW   1
 
-
-#define AP_MOTORS_HELI_COLLECTIVE_MIN           1389
-#define AP_MOTORS_HELI_COLLECTIVE_MAX           1619
-#define AP_MOTORS_HELI_COLLECTIVE_HOVER_MIN     0.3f  // minimum possible hover throttle
-#define QUAD_SERVO_MAX_ANGLE 4500
-
-
-#define AP_MOTORS_HELI_QUAD_NUM_MOTORS 4
-#define AP_MOTORS_MAX_NUM_SERVOS 4
-
 /// @class      AP_MotorsMatrix
 class AP_MotorsMatrix : public AP_MotorsMulticopter {
 public:
-    bool init_outputs();
-    void calculate_scalars();
-    void calculate_roll_pitch_collective_factors();
-    void move_actuators(float roll_out, float pitch_out, float collective_in, float yaw_out);
 
-    AP_MotorsMatrix(uint16_t loop_rate, uint16_t speed_hz = AP_MOTORS_SPEED_DEFAULT)
-        : AP_MotorsMulticopter(loop_rate, speed_hz),
-          _main_rotor(SRV_Channel::k_heli_rsc, 8) // 使用k_heli_rsc作为功能，通道8作为默认值
-    {
-        if (_singleton != nullptr) {
-            AP_HAL::panic("AP_MotorsMatrix must be singleton");
-        }
-        _singleton = this;
-    };
     /// Constructor
-/*     AP_MotorsMatrix(uint16_t loop_rate, uint16_t speed_hz = AP_MOTORS_SPEED_DEFAULT) :
+    AP_MotorsMatrix(uint16_t loop_rate, uint16_t speed_hz = AP_MOTORS_SPEED_DEFAULT) :
         AP_MotorsMulticopter(loop_rate, speed_hz)
     {
         if (_singleton != nullptr) {
             AP_HAL::panic("AP_MotorsMatrix must be singleton");
         }
         _singleton = this;
-    }; */
+    };
 
     // get singleton instance
     static AP_MotorsMatrix *get_singleton() {
         return _singleton;
     }
-
-
-    void set_collective_pitch(float coll_in) {
-        _collective_in = coll_in;
-    }
-
 
     // init
     virtual void        init(motor_frame_class frame_class, motor_frame_type frame_type) override;
@@ -131,8 +100,7 @@ public:
         uint8_t testing_order;
     };
     void add_motors_raw(const struct MotorDefRaw *motors, uint8_t num_motors);
-    void update_servo_control(RotorControlState state);
-    AP_MotorsHeli_RSC _main_rotor;
+
 protected:
     // output - sends commands to the motors
     void                output_armed_stabilizing() override;
@@ -182,51 +150,6 @@ protected:
 
     const char*         _frame_class_string = ""; // string representation of frame class
     const char*         _frame_type_string = "";  //  string representation of frame type
-
-    AP_Int16        _cyclic_max;                // Maximum cyclic angle of the swash plate in centi-degrees
-    AP_Int16        _collective_min;            // Lowest possible servo position for the swashplate
-    AP_Int16        _collective_max;            // Highest possible servo position for the swashplate
-    AP_Int8         _servo_mode;                // Pass radio inputs directly to servos during set-up through mission planner
-    AP_Int8         _servo_test;                // sets number of cycles to test servo movement on bootup
-    AP_Float        _collective_hover;          // estimated collective required to hover throttle in the range 0 ~ 1
-    AP_Int8         _collective_hover_learn;    // enable/disabled hover collective learning
-    AP_Int8         _heli_options;              // bitmask for optional features
-    AP_Float        _collective_zero_thrust_deg;// Zero thrust blade collective pitch in degrees
-    AP_Float        _collective_land_min_deg;   // Minimum Landed collective blade pitch in degrees for non-manual collective modes (i.e. modes that use altitude hold)
-    AP_Float        _collective_max_deg;        // Maximum collective blade pitch angle in deg that corresponds to the PWM set for maximum collective pitch (H_COL_MAX)
-    AP_Float        _collective_min_deg;        // Minimum collective blade pitch angle in deg that corresponds to the PWM set for minimum collective pitch (H_COL_MIN)
-
-
-    float           _collective_zero_thrust_pct;      // collective zero thrutst parameter value converted to 0 ~ 1 range
-    float           _collective_land_min_pct;      // collective land min parameter value converted to 0 ~ 1 range
-    uint8_t         _servo_test_cycle_counter = 0;   // number of test cycles left to run after bootup
-    motor_frame_type _frame_type;
-    motor_frame_class _frame_class;
-
-
-
-    
-
-
-    
 private:
     static AP_MotorsMatrix *_singleton;
-    float _collective_in;
-        // Additional member variables for factors
-/*     float _rollFactor[AP_MOTORS_MAX_NUM_MOTORS];
-    float _pitchFactor[AP_MOTORS_MAX_NUM_MOTORS];
-    float _yawFactor[AP_MOTORS_MAX_NUM_MOTORS];
-    float _collectiveFactor[AP_MOTORS_MAX_NUM_MOTORS]; */
-
-
-    float _rollFactor[AP_MOTORS_HELI_QUAD_NUM_MOTORS];
-    float _pitchFactor[AP_MOTORS_HELI_QUAD_NUM_MOTORS];
-    float _collectiveFactor[AP_MOTORS_HELI_QUAD_NUM_MOTORS];
-    float _yawFactor[AP_MOTORS_HELI_QUAD_NUM_MOTORS];
-    float _out[AP_MOTORS_HELI_QUAD_NUM_MOTORS];
-
-    float _servo_out[AP_MOTORS_MAX_NUM_SERVOS];
-    float _servo_roll_factor[AP_MOTORS_MAX_NUM_SERVOS];
-    float _servo_pitch_factor[AP_MOTORS_MAX_NUM_SERVOS];
-    float _servo_collective_factor[AP_MOTORS_MAX_NUM_SERVOS];
 };
